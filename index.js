@@ -175,10 +175,13 @@ class Form {
     getData() {
         return [].reduce.call(document.getElementById('myForm').elements, (data, element) => {
                 let isValidElement = (el) => {
-                return el.name === el.type;
-    };
+
+                return el.name === el.id;
+                };
+
 
         if (isValidElement(element)) {
+            //console.log(element.value);
             data[element.name] = element.value;
         }
 
@@ -188,7 +191,6 @@ class Form {
 
     setData(data) {
         const form = document.getElementById('myForm');
-
         for (let [key, value] of Object.entries(data)) {
             if (key === 'phone' || key === 'email' || key === 'fio') {
                 if (form.elements[key]) {
