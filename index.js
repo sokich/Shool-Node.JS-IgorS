@@ -9,24 +9,19 @@ class Form {
         this.validate = this.validate.bind(this);
         this.setData = this.setData.bind(this);
         this.getData = this.getData.bind(this);
+
     }
     submit(event) {
         if (typeof event !== 'undefined') {
             event.preventDefault();
         }
-
         let validationResult = this.validate();
         const resultContainer = document.getElementById('resultContainer');
         const submitButton = document.getElementById('submitButton');
 
-        for (let input of document.getElementsByTagName('input')) {
-            input.classList.remove('error');
-        }
-
         resultContainer.className = '';
         resultContainer.innerHTML = '';
 
-        console.log(validationResult.isValid);
         if (validationResult.isValid) {
             submitButton.disabled = true;
 
@@ -93,7 +88,6 @@ class Form {
         }
 
         function isCorrectFIO(fio) {
-
             resetError(elems.fio.parentNode);
             if (!fio) {
                 showError(elems.fio.parentNode, ' Отсутствует текст');
@@ -171,7 +165,6 @@ class Form {
 
         if (isCorrectFIO(fio) & isCorrectEmail(email) & isCorrectPhone(phone)){
             resetError(form.parentNode);
-            submitButton.disabled = true;
         }
         return {
             isValid: isValid
