@@ -1,0 +1,19 @@
+input {
+    border: 1px solid gray;
+    padding: 5px;
+}
+input[name=send]{
+    margin-top: 10px;
+}
+.error-message{
+    color: #ff0000;
+}
+.error {
+    color: #ff0000;
+}
+.error input {
+    border: 1px solid #ff0000;
+}
+.resultContainer {
+    margin-top: 10px;
+}
