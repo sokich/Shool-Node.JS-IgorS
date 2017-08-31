@@ -77,7 +77,6 @@ class Form {
             msgElem.innerHTML = errorMessage;
             container.appendChild(msgElem);
             errorFields.push(container.querySelector('input').name);
-            isValid = false;
         }
 
         function resetError(container) {
@@ -91,23 +90,30 @@ class Form {
             resetError(elems.fio.parentNode);
             if (!fio) {
                 showError(elems.fio.parentNode, ' Отсутствует текст');
+                isValid = false;
                 return false;
             }
             if (fioA.length !== 3) {
                 showError(elems.fio.parentNode,"ФИО должно состоять не менее 3 символов");
+                isValid = false;
                 return false;
             }
             for (var i = 0; i < 3; i++) {
                 if (!/^[а-яА-ЯёЁa-zA-Z. ]+$/.test(fioA[i])) {
                     if(fioA[i]==''){
                         showError(elems.fio.parentNode,"Одна из частей ФИО не может быть пробелом!");
+                        isValid = false;
                         return false;
                     }
                     else {
                         showError(elems.fio.parentNode,"Не корректные данные в ФИО - (' "+fioA[i]+" ')");
+                        isValid = false;
                         return false;
                     }
                 }
+            }
+            if(isValid == false){
+                errorFields.push('fio')
             }
             return true;
         }
@@ -117,7 +123,11 @@ class Form {
             var pattern2 = new RegExp(/^[-._A-Za-z0-9]+@(ya)+\.(ru)$/i);
             if(!pattern1.test(email) && !pattern2.test(email)){
                 showError(elems.email.parentNode,"Не корректный email. Email должен быть на доменах ya.ru, yandex.ru, yandex.ua, yandex.by, yandex.kz, yandex.com");
+                isValid = false;
                 return false;
+            }
+            if(isValid == false){
+                errorFields.push('email')
             }
             return true;
         }
@@ -131,14 +141,16 @@ class Form {
             resetError(elems.phone.parentNode);
             if(!phone){
                 showError(elems.phone.parentNode,"Вы не ввели номер телефона");
+                isValid = false;
                 return false;
             }
             else{
                 phonePattern = new RegExp (/^[\+]\d{1}[\(]\d{3}[\)]\d{3}[\-]\d{2}[\-]\d{2}$/);
 
                 if(!phonePattern.test(phone)){
-                    console.log(phonePattern.test(phone));
                     showError(elems.phone.parentNode,"Не правильный формат телефона");
+                    isValid = false;
+                    errorFields.push('phone');
                     return false;
                 }
                 else{
@@ -157,17 +169,24 @@ class Form {
                     }
                     else{
                         showError(elems.phone.parentNode,"Сумма всех цифр телефона должна быть меньше 30");
+                        isValid = false;
+                        errorFields.push('phone');
                         return false
                     }
                 }
             }
+            if(isValid == false){
+                errorFields.push('phone')
+            }
+            return true;
         }
 
         if (isCorrectFIO(fio) & isCorrectEmail(email) & isCorrectPhone(phone)){
             resetError(form.parentNode);
         }
         return {
-            isValid: isValid
+            isValid: isValid,
+            errorFields: errorFields
         };
 
     }
