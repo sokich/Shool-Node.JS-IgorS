@@ -1,12 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Тестовое задание - NODE.JS</title>
+    <title>Тестовое задание NODE</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+
 <form id="myForm" action="progress.json">
+        <div id="resultContainer">
+        </div>
     <table>
         <tr>
             <!-- текстовые поля ввода -->
@@ -24,14 +27,13 @@
         <tr>
             <td>Телефон</td>
             <td>
-                <input id="phone" type="phone" placeholder="+7(999)999-99-99" name="phone">
+                <input id="phone" type="text" placeholder="+7(999)999-99-99" name="phone">
             </td>
         </tr>
     </table>
     <!-- кнопка отправки формы -->
     <button id="submitButton">Отправить</button>
 </form>
-<div id="resultContainer"></div>
-<script type="text/javascript" src="index.js"></script>
+<script src="index.js"></script>
 </body>
 </html>

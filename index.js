@@ -1,7 +1,3 @@
-/**
- * Created by IgorS on 27.08.2017.
- */
-
 class Form {
     constructor() {
         document.getElementById('myForm').addEventListener('submit', this.submit.bind(this));
@@ -9,15 +5,39 @@ class Form {
         this.validate = this.validate.bind(this);
         this.setData = this.setData.bind(this);
         this.getData = this.getData.bind(this);
-
     }
+    resetError(container) {
+    container.className = '';
+    if (container.lastChild.className == "error-message") {
+        container.removeChild(container.lastChild);
+        }
+    }
+    showError(container, errorMessage) {
+        container.className = 'error';
+        var msgElem = document.createElement('span');
+        msgElem.className = "error-message";
+        msgElem.innerHTML = errorMessage;
+        container.parentNode.appendChild(msgElem);
+    }
+
+
     submit(event) {
+        var form = document.getElementById('myForm');
+        var elems = form.elements;
         if (typeof event !== 'undefined') {
             event.preventDefault();
         }
+        this.resetError(elems.fio.parentNode);
+        this.resetError(elems.email.parentNode);
+        this.resetError(elems.phone.parentNode);
+
         let validationResult = this.validate();
         const resultContainer = document.getElementById('resultContainer');
         const submitButton = document.getElementById('submitButton');
+
+        for (let input of document.getElementsByTagName('input')) {
+            input.classList.remove('error');
+        }
 
         resultContainer.className = '';
         resultContainer.innerHTML = '';
@@ -55,135 +75,61 @@ class Form {
 
             fetchJSONFile();
 
-        }
-        else {
-            return false
+        } else {
+            for (let value of validationResult.errorFields) {
+              console.log(document.getElementById(value));
+                this.showError(document.getElementById(value),"В этом поле допущена ошибка");
+                document.getElementById(value).className = 'error';
+
+            }
         }
     }
+
     validate() {
-        var errorFields = [];
-        var isValid = true;
-        var form = document.getElementById('myForm');
-        var elems = form.elements;
-        var fio = elems.fio.value;
-        var email = elems.email.value;
-        var phone = elems.phone.value;
-        var fioA = fio.split(' ');
+        let errorFields = [];
+        let isValid = true;
 
-        function showError(container, errorMessage) {
-            container.className = 'error';
-            var msgElem = document.createElement('span');
-            msgElem.className = "error-message";
-            msgElem.innerHTML = errorMessage;
-            container.appendChild(msgElem);
-            errorFields.push(container.querySelector('input').name);
+        const allowedDomains = ['ya.ru', 'yandex.ru', 'yandex.ua', 'yandex.by', 'yandex.kz', 'yandex.com'];
+        const domain = document.getElementById('email').value.replace(/.*@/, '');
+
+        if (!allowedDomains.includes(domain)) {
+            isValid = false;
+            errorFields.push('email');
         }
 
-        function resetError(container) {
-            container.className = '';
-            if (container.lastChild.className == "error-message") {
-                container.removeChild(container.lastChild);
-            }
+        const fio = document.getElementById('fio').value;
+        const fioWordsLength = document.getElementById('fio').value.trim().split(/\s+/).length;
+        const fioMaxWords = 3;
+
+        if (fioWordsLength !== fioMaxWords) {
+            isValid = false;
+            errorFields.push('fio');
         }
 
-        function isCorrectFIO(fio) {
-            resetError(elems.fio.parentNode);
-            if (!fio) {
-                showError(elems.fio.parentNode, ' Отсутствует текст');
+        if (!/^[a-zA-Z а-яА-Я]*$/g.test(fio)) {
+            isValid = false;
+            errorFields.push('fio');
+        }
+
+        const phoneNumber = document.getElementById('phone').value;
+        const phonePattern = new RegExp(/^\+7\(\d{3}\)\d{3}(?:-\d{2}){2}$/);
+        const maxSumOfDigitsInPhoneNumber = 30;
+
+        let sumOfDigitsInPhoneNumber = (number) => {
+            return number.match(/\d/g).reduce((a, b) => +a + +b);
+        };
+
+        if (phonePattern.test(phoneNumber)) {
+            if (sumOfDigitsInPhoneNumber(phoneNumber) >= maxSumOfDigitsInPhoneNumber) {
                 isValid = false;
-                return false;
+                errorFields.push('phone');
             }
-            if (fioA.length !== 3) {
-                showError(elems.fio.parentNode,"ФИО должно состоять не менее 3 символов");
-                isValid = false;
-                return false;
-            }
-            for (var i = 0; i < 3; i++) {
-                if (!/^[а-яА-ЯёЁa-zA-Z. ]+$/.test(fioA[i])) {
-                    if(fioA[i]==''){
-                        showError(elems.fio.parentNode,"Одна из частей ФИО не может быть пробелом!");
-                        isValid = false;
-                        return false;
-                    }
-                    else {
-                        showError(elems.fio.parentNode,"Не корректные данные в ФИО - (' "+fioA[i]+" ')");
-                        isValid = false;
-                        return false;
-                    }
-                }
-            }
-            if(isValid == false){
-                errorFields.push('fio')
-            }
-            return true;
-        }
-        function isCorrectEmail(email) {
-            resetError(elems.email.parentNode);
-            var pattern1 = new RegExp(/^[a-z0-9_\.-]+@(yandex)+\.(ru|ua|by|kz|com)$/i);
-            var pattern2 = new RegExp(/^[-._A-Za-z0-9]+@(ya)+\.(ru)$/i);
-            if(!pattern1.test(email) && !pattern2.test(email)){
-                showError(elems.email.parentNode,"Не корректный email. Email должен быть на доменах ya.ru, yandex.ru, yandex.ua, yandex.by, yandex.kz, yandex.com");
-                isValid = false;
-                return false;
-            }
-            if(isValid == false){
-                errorFields.push('email')
-            }
-            return true;
+
+        } else {
+            isValid = false;
+            errorFields.push('phone');
         }
 
-        function isCorrectPhone(phone) {
-            var phonePattern;
-            var checkSumm;
-            var allSumm;
-            var summ;
-            var summPattern
-            resetError(elems.phone.parentNode);
-            if(!phone){
-                showError(elems.phone.parentNode,"Вы не ввели номер телефона");
-                isValid = false;
-                return false;
-            }
-            else{
-                phonePattern = new RegExp (/^[\+]\d{1}[\(]\d{3}[\)]\d{3}[\-]\d{2}[\-]\d{2}$/);
-
-                if(!phonePattern.test(phone)){
-                    showError(elems.phone.parentNode,"Не правильный формат телефона");
-                    isValid = false;
-                    errorFields.push('phone');
-                    return false;
-                }
-                else{
-                    checkSumm = 0;
-                    allSumm = 0;
-                    summPattern =new RegExp (/[-\(\)\+]+/);
-                    summ = phone.split(summPattern);
-                    summ.forEach(function(item, i, arr) {
-                        checkSumm +=item;
-                    });
-                    for (var i = 0; i < checkSumm.length; i++)
-                        allSumm += Number(checkSumm[i]);
-                    console.log(allSumm);
-                    if(allSumm < 30 ){
-                        return true
-                    }
-                    else{
-                        showError(elems.phone.parentNode,"Сумма всех цифр телефона должна быть меньше 30");
-                        isValid = false;
-                        errorFields.push('phone');
-                        return false
-                    }
-                }
-            }
-            if(isValid == false){
-                errorFields.push('phone')
-            }
-            return true;
-        }
-
-        if (isCorrectFIO(fio) & isCorrectEmail(email) & isCorrectPhone(phone)){
-            resetError(form.parentNode);
-        }
         return {
             isValid: isValid,
             errorFields: errorFields
@@ -192,15 +138,13 @@ class Form {
     }
 
     getData() {
+        let data = [];
         return [].reduce.call(document.getElementById('myForm').elements, (data, element) => {
                 let isValidElement = (el) => {
-
                 return el.name === el.id;
-                };
-
+    };
 
         if (isValidElement(element)) {
-            //console.log(element.value);
             data[element.name] = element.value;
         }
 
@@ -210,6 +154,7 @@ class Form {
 
     setData(data) {
         const form = document.getElementById('myForm');
+
         for (let [key, value] of Object.entries(data)) {
             if (key === 'phone' || key === 'email' || key === 'fio') {
                 if (form.elements[key]) {
