@@ -24,6 +24,7 @@ class Form {
     submit(event) {
         var form = document.getElementById('myForm');
         var elems = form.elements;
+        var formData = new FormData(form);
         if (typeof event !== 'undefined') {
             event.preventDefault();
         }
@@ -48,8 +49,8 @@ class Form {
             let fetchJSONFile = () => {
                 const xhr = new XMLHttpRequest();
 
-                xhr.open('GET', document.getElementById('myForm').action, false);
-                xhr.send();
+                xhr.open('POST', document.getElementById('myForm').action, false);
+                xhr.send(formData);
                 const successStatusCode = 200;
                 const operationCompleteCode = 4;
 
